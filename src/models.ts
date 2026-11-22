@@ -19,6 +19,8 @@ import type { Round } from './types.js'
  * headline figure is the one to use.
  */
 export const CONTEXT_WINDOWS: Record<string, number> = {
+  'claude-fable-5-2': 1_000_000,
+  'claude-mythos-5-2': 1_000_000,
   'claude-fable-5-1': 1_000_000,
   'claude-mythos-5-1': 1_000_000,
   'claude-fable-5': 1_000_000,
@@ -34,16 +36,26 @@ export const CONTEXT_WINDOWS: Record<string, number> = {
   // dated id `claude-opus-4-20250514` becomes once `resolveModel` strips the snapshot off it.
   'claude-opus-4-0': 200_000,
   'claude-opus-4': 200_000,
+  'claude-sonnet-5-5': 1_000_000,
   'claude-sonnet-5': 1_000_000,
   'claude-sonnet-4-6': 1_000_000,
   'claude-sonnet-4-5': 200_000,
   'claude-sonnet-4-0': 200_000,
   'claude-sonnet-4': 200_000,
+  'claude-haiku-5-5': 1_000_000,
   'claude-haiku-4-5': 200_000,
   'claude-3-5-haiku': 200_000,
 
-  // Codex. The four current models share a 1,050,000-token window that admits 922,000 of input.
+  // Codex. Every GPT-6 and GPT-5.6 model shares a 1,050,000-token window that admits 922,000 of
+  // input. Codex runs GPT-6.1 Sol and GPT-6.2 Sol at a 500K default, which it can be configured
+  // to raise, so the API figure is the ceiling.
+  'gpt-6.2-astra': 922_000,
+  'gpt-6.2-sol': 922_000,
+  'gpt-6.1-sol': 922_000,
+  'gpt-6.1-terra': 922_000,
   'gpt-6-astra': 922_000,
+  'gpt-6-sol': 922_000,
+  'gpt-6-luna': 922_000,
   'gpt-5.6-sol': 922_000,
   'gpt-5.6-terra': 922_000,
   'gpt-5.6-luna': 922_000,
@@ -52,11 +64,20 @@ export const CONTEXT_WINDOWS: Record<string, number> = {
   'gpt-5.5': 272_000,
   'gpt-5.4': 272_000,
   'gpt-5.4-mini': 272_000,
+  'gpt-5.4-nano': 272_000,
   'gpt-5-mini': 272_000,
   'gpt-5.3-codex': 272_000,
   'gpt-5.2': 272_000,
   'gpt-5.1': 272_000,
   'gpt-5': 272_000,
+  'gpt-5-nano': 272_000,
+  // These publish a total window and a maximum output but no input limit. The figure here is the
+  // window minus the maximum output, the same split the newer models state.
+  'gpt-4.1': 1_014_808,
+  'gpt-4.1-mini': 1_014_808,
+  'gpt-4o': 111_616,
+  'gpt-4o-mini': 111_616,
+  o3: 100_000,
 }
 
 /** A dated snapshot: `-20251001` as Claude Code writes it, `@20251101` as Vertex does. */
