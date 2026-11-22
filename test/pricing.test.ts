@@ -219,6 +219,42 @@ test('a model that reads cache at its own multiplier is not charged the default 
   assert.equal(opus.cache_read, 0.2)
 })
 
+test('the models added in 2026-11 carry the figures their price pages publish', () => {
+  // Written out as published rather than as multipliers, so a wrong multiplier at the call site
+  // shows up here as a wrong price. Order: input, 5m/30m write, 1h/12h write, cache read, output.
+  const published: Record<string, [number, number, number, number, number]> = {
+    'claude-fable-5-2': [8, 10, 16, 0.2, 40],
+    'claude-mythos-5-2': [8, 10, 16, 0.2, 40],
+    'claude-sonnet-5-5': [2, 2.5, 4, 0.1, 10],
+    'claude-haiku-5-5': [0.1, 0.125, 0.2, 0.01, 0.5],
+    'gpt-6.2-astra': [8, 10, 20, 0.4, 40],
+    'gpt-6.2-sol': [2, 2.5, 5, 0.1, 10],
+    'gpt-6.1-sol': [2, 2.5, 5, 0.1, 10],
+    'gpt-6.1-terra': [1, 1.25, 2.5, 0.05, 5],
+    'gpt-6-astra': [10, 12.5, 25, 1, 50],
+    'gpt-6-sol': [2, 2.5, 5, 0.2, 10],
+    'gpt-6-luna': [0.1, 0.125, 0.25, 0.01, 0.5],
+    'gpt-5.6-sol': [4, 5, 10, 0.4, 20],
+    'gpt-5.6-terra': [2, 2.5, 5, 0.2, 12],
+    'gpt-5.6-luna': [0.2, 0.25, 0.5, 0.02, 1.2],
+    'gpt-5.4-nano': [0.2, 0.2, 0.2, 0.02, 1.25],
+    'gpt-5-nano': [0.05, 0.05, 0.05, 0.005, 0.4],
+    'gpt-4.1': [2, 2, 2, 0.5, 8],
+    'gpt-4.1-mini': [0.4, 0.4, 0.4, 0.1, 1.6],
+    'gpt-4o': [2.5, 2.5, 2.5, 1.25, 10],
+    'gpt-4o-mini': [0.15, 0.15, 0.15, 0.075, 0.6],
+    o3: [2, 2, 2, 0.5, 8],
+  }
+  const models = defaultPricing().models
+  for (const [id, [input, write5m, write1h, read, output]] of Object.entries(published)) {
+    assert.deepEqual(
+      models[id],
+      { in: input, cache_write_5m: write5m, cache_write_1h: write1h, cache_read: read, out: output },
+      id,
+    )
+  }
+})
+
 test('every priced model has a context window, and every window a price', () => {
   // The two tables are keyed the same way and read by the same `resolveModel`. A model in one and
   // not the other is not an error anywhere — it is a round priced with no context share, or a share

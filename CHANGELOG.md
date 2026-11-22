@@ -26,8 +26,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). It is pub
   names nobody, asks whose work it is before it merges (`--committer <name>` on the CLI). The
   projects list marks a project holding merged work with whose it is. `GET`/`POST /api/identity`,
   `GET /api/meta`, `POST /api/projects/<slug>/merge`, and `committer` on every scoped route.
+- **Rates and context windows for the current models.** Claude Fable 5.2, Mythos 5.2, Sonnet 5.5 and
+  Haiku 5.5. OpenAI's GPT-6.2 Astra and Sol, GPT-6.1 Sol and Terra, and GPT-6 Sol and Luna, which
+  Codex now runs. The older GPT-5.4 nano, GPT-5 nano, GPT-4.1, GPT-4.1 mini, GPT-4o, GPT-4o mini
+  and o3, which Copilot and the bring-your-own-model sources record. Until now these rounds had no
+  cost and no context share. Haiku 5.5 is priced at its rate for prompts up to 100K tokens.
 
 ### Changed
+
+- The 12-hour cache write on GPT-6 Astra and GPT-5.6 Sol, Terra and Luna is 2.5× input, as
+  published, not 2×. Codex records every cache write as a 5-minute one, so no Codex round's cost
+  changes. This only changes the rate shown in Settings.
 
 - **Trails and questions are behind `probez view --debug`.** They are probez reading its own
   reading — useful for working on the classifier, and not what anyone opens the view to learn — and
