@@ -309,7 +309,7 @@ Ids
 Naming a project
   Leave it out for the current directory. Otherwise its name, as \`probez projects\` lists it,
   or the path it was worked in. A path holding several projects covers all of them.
-      probez sessions flowz-mcp        probez collect ~/Dev
+      probez sessions probez           probez collect ~/Dev
 
 Search
   probez find "<query>" [project]

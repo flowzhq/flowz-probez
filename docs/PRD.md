@@ -718,3 +718,29 @@ as is the only other copy that ever existed here.
 reach a project through one function, which checks the slug against the shape `slugFor` produces and
 checks the path it resolves to is under `<data-dir>/projects/`, so nothing outside the store is
 reachable however a request is shaped.
+
+## v0.8.2 · One project, more than one machine
+
+**The same project, worked on from two computers, reads as one.** An export made on one machine
+(`Export rounds` or `Export bundle`) merges into the same project on another, from the project's `⋮`
+menu or `probez import <file> --into <project>`. Rounds are matched on `session+id`, so merging the
+same file twice changes nothing, a newer export brings only what is new, and a round this machine
+collected itself is never replaced. What was merged is kept in `merged.jsonl` beside the rounds, so a
+schema rebuild puts it back rather than losing it.
+
+**Every round says who recorded it.** Exports name their rounds for the machine that made them and a
+merge keeps that name, so once a store holds more than one person's work the scope bar has a
+**Committer** chip and every Insights chart and list can show yours, theirs or everyone's. The name
+is set under Settings › Data › Who you are; left blank it is git's `user.name`, or the account
+name. Rounds collected locally carry no name on disk and take yours when read, so nothing already in
+a store needs rewriting.
+
+**Writers to one project wait for each other.** Collect, merge, rename, delete and a clear's trim
+take a lock file in the project's directory. A second terminal or a second `probez view` waits
+instead of losing rounds the first just wrote; a lock left by a process that has exited is taken
+over; one that is held too long is reported by the process holding it. A deleted project stays
+deleted whatever was writing to it when it went.
+
+**Trails and questions moved behind `probez view --debug`.** They are probez reading its own
+reading, useful for working on the classifier and slow to compute, so the default view neither
+computes nor shows them. The `trails`, `questions` and `explain` commands are unchanged.

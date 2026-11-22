@@ -279,8 +279,10 @@ code drift apart. Each item below has been wrong at least once.
 1. **Sync the docs to what the code now does.**
    - `README.md`: the command table, and every `$ probez …` block. Regenerate those by *running*
      the command and pasting its output, including the project-header line; do not hand-edit them.
-     Use a project you are not actively working in, or the numbers go stale the next time you run
-     probez on this repo.
+     Run them on probez itself and nothing else, so the docs never name anyone else's project:
+     the examples are the project `probez`, the sessions probez was built in. Collect it from a
+     checkout you are not working in at the time, or the numbers move under you as you paste.
+     Pick ids whose output prints no home-directory path.
    - `src/cli.ts`: the `HELP` string is a third copy of the command list, after the README table
      and the changelog. It drifts silently because nothing compiles against it.
    - `docs/PRD.md`: anything describing what the current version delivers.

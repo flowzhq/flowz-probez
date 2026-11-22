@@ -6,7 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). It is published to npm as
 [`probez-cli`](https://www.npmjs.com/package/probez-cli); the installed command is `probez`.
 
+A few versions were tagged in git but never published to npm (0.3.1, 0.3.2, 0.5.1, 0.7.0, 0.7.3);
+each is marked below with the npm release that first carried its changes. Versions 0.1.2 to 0.1.4
+were published briefly before 0.1.0 and then withdrawn; they have no entry here, and npm does not
+allow those numbers to be reused.
+
 ## [Unreleased]
+
+## [0.8.2] - 2026-11-23
 
 ### Added
 
@@ -69,6 +76,24 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). It is pub
 - Pages that label every round (Projects, Overview, a single round, Settings › Commands) remember the
   labels until the rounds or the command table change, search suggestions remember each project's
   values until its index changes, and the browser no longer sends the same request twice at once.
+- **A deleted project stays deleted.** A sync, collect, analyze or merge finishing just after a
+  delete or clear no longer recreates the project's folder holding only its caches, which then
+  showed up as an unreadable project. A project is moved aside in one step before it is removed, so
+  a writer waiting in another process finds no project rather than a half-deleted one.
+- A merge, rename, delete, sync or clear that gives up waiting on another writer says which process
+  holds the project and which lock file to remove, rather than "probez view failed to answer". The
+  route answers 409.
+- A clear goes on past a project it cannot take and reports it by name (`locked`, `failed`);
+  `probez clear` exits 1 when one failed, and Settings shows it as an error.
+- A failed write while trimming, merging or rebuilding is reported where it happens instead of
+  ending the process. An import holds the project's lock and moves its rounds and manifest into
+  place whole.
+- A merge answers before the search index is rebuilt, and a rounds export from the page imports
+  again.
+- Search suggestions and pricing no longer parse every project's rounds on each request.
+- A session drawer that could not load shows the error instead of reading forever.
+- On Windows: a lock file still being deleted is waited on like a held one, and `%TEMP%` is
+  recognised whatever its separators or case. The test suite now runs there.
 
 ## [0.8.1] - 2026-10-13
 
@@ -347,6 +372,8 @@ the first time with this version.
 
 ## [0.7.3] - 2026-09-25
 
+> Tagged in git, never published to npm. These changes first shipped on npm in [0.8.0].
+
 ### Added
 
 - **Trends on the project page: peak context and reused vs fresh input.** Beside *work* and
@@ -544,6 +571,8 @@ the first time with this version.
 
 ## [0.7.0] - 2026-09-07
 
+> Tagged in git, never published to npm. These changes first shipped on npm in [0.7.1].
+
 ### Added
 
 - **A failed tool call now says what kind of failure it was.** `is_error` is one bit, and one bit
@@ -698,6 +727,8 @@ the first time with this version.
   `1 projects`, which a partial run made reachable.
 
 ## [0.5.1] - 2026-09-02
+
+> Tagged in git, never published to npm. These changes first shipped on npm in [0.6.0].
 
 ### Fixed
 
@@ -1606,6 +1637,8 @@ person who ran it.
 
 ## [0.3.2] - 2026-08-16
 
+> Tagged in git, never published to npm. These changes first shipped on npm in [0.3.3].
+
 The classifier, taken apart. It did two jobs in one pass — working out what a call mechanically did,
 and deciding what kind of work that was — and because the two were interleaved, the same act could be
 filed two ways depending on which tool performed it. They are now two passes, and the second one is a
@@ -1665,6 +1698,8 @@ table.
   was authored.
 
 ## [0.3.1] - 2026-08-16
+
+> Tagged in git, never published to npm. These changes first shipped on npm in [0.3.3].
 
 Managing the store, from the page that lists it. 0.3 could collect a project, read it and send it
 somewhere; it could not rename one or get rid of one.
@@ -2013,27 +2048,28 @@ First release.
   above them. Errors, result size and time belong to the call, which has one result and one
   duration, so every command in a multi-command call is charged the whole of it.
 
-[Unreleased]: https://github.com/flowzhq/probez/compare/v0.8.1...HEAD
-[0.8.1]: https://github.com/flowzhq/probez/compare/v0.8.0...v0.8.1
-[0.8.0]: https://github.com/flowzhq/probez/compare/v0.7.3...v0.8.0
-[0.7.3]: https://github.com/flowzhq/probez/compare/v0.7.2...v0.7.3
-[0.7.2]: https://github.com/flowzhq/probez/compare/v0.7.1...v0.7.2
-[0.7.1]: https://github.com/flowzhq/probez/compare/v0.7.0...v0.7.1
-[0.7.0]: https://github.com/flowzhq/probez/compare/v0.6.0...v0.7.0
-[0.6.0]: https://github.com/flowzhq/probez/compare/v0.5.1...v0.6.0
-[0.5.1]: https://github.com/flowzhq/probez/compare/v0.5.0...v0.5.1
-[0.5.0]: https://github.com/flowzhq/probez/compare/v0.4.0...v0.5.0
-[0.4.0]: https://github.com/flowzhq/probez/compare/v0.3.9...v0.4.0
-[0.3.9]: https://github.com/flowzhq/probez/compare/v0.3.8...v0.3.9
-[0.3.8]: https://github.com/flowzhq/probez/compare/v0.3.7...v0.3.8
-[0.3.7]: https://github.com/flowzhq/probez/compare/v0.3.6...v0.3.7
-[0.3.6]: https://github.com/flowzhq/probez/compare/v0.3.5...v0.3.6
-[0.3.5]: https://github.com/flowzhq/probez/compare/v0.3.4...v0.3.5
-[0.3.4]: https://github.com/flowzhq/probez/compare/v0.3.3...v0.3.4
-[0.3.3]: https://github.com/flowzhq/probez/compare/v0.3.2...v0.3.3
-[0.3.2]: https://github.com/flowzhq/probez/compare/v0.3.1...v0.3.2
-[0.3.1]: https://github.com/flowzhq/probez/compare/v0.3.0...v0.3.1
-[0.3.0]: https://github.com/flowzhq/probez/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/flowzhq/probez/compare/v0.1.1...v0.2.0
-[0.1.1]: https://github.com/flowzhq/probez/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/flowzhq/probez/commits/v0.1.0
+[Unreleased]: https://github.com/flowzhq/flowz-probez/compare/v0.8.2...HEAD
+[0.8.2]: https://github.com/flowzhq/flowz-probez/compare/v0.8.1...v0.8.2
+[0.8.1]: https://github.com/flowzhq/flowz-probez/compare/v0.8.0...v0.8.1
+[0.8.0]: https://github.com/flowzhq/flowz-probez/compare/v0.7.3...v0.8.0
+[0.7.3]: https://github.com/flowzhq/flowz-probez/compare/v0.7.2...v0.7.3
+[0.7.2]: https://github.com/flowzhq/flowz-probez/compare/v0.7.1...v0.7.2
+[0.7.1]: https://github.com/flowzhq/flowz-probez/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/flowzhq/flowz-probez/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/flowzhq/flowz-probez/compare/v0.5.1...v0.6.0
+[0.5.1]: https://github.com/flowzhq/flowz-probez/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/flowzhq/flowz-probez/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/flowzhq/flowz-probez/compare/v0.3.9...v0.4.0
+[0.3.9]: https://github.com/flowzhq/flowz-probez/compare/v0.3.8...v0.3.9
+[0.3.8]: https://github.com/flowzhq/flowz-probez/compare/v0.3.7...v0.3.8
+[0.3.7]: https://github.com/flowzhq/flowz-probez/compare/v0.3.6...v0.3.7
+[0.3.6]: https://github.com/flowzhq/flowz-probez/compare/v0.3.5...v0.3.6
+[0.3.5]: https://github.com/flowzhq/flowz-probez/compare/v0.3.4...v0.3.5
+[0.3.4]: https://github.com/flowzhq/flowz-probez/compare/v0.3.3...v0.3.4
+[0.3.3]: https://github.com/flowzhq/flowz-probez/compare/v0.3.2...v0.3.3
+[0.3.2]: https://github.com/flowzhq/flowz-probez/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/flowzhq/flowz-probez/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/flowzhq/flowz-probez/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/flowzhq/flowz-probez/compare/v0.1.1...v0.2.0
+[0.1.1]: https://github.com/flowzhq/flowz-probez/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/flowzhq/flowz-probez/commits/v0.1.0

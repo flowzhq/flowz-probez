@@ -355,105 +355,86 @@ at the API list rate for the model, the same as every other source; Copilot itse
 request, not by token. With two Copilot Chat windows answering at once, the log does not say which
 call belonged to which, and a call can land on the wrong one of the two.
 
+Every example below is probez run on its own repository: the sessions in which probez itself was
+built.
+
 ```console
-$ probez
+$ probez probez
 
-probez  flowz-agentic-sdlc  ~/Dev/workspace/flowz-agentic-sdlc
+probez  probez  ~/Dev/workspace/probez
 
-  sessions   27        rounds   3922     tasks  161
-  tokens     1.3B in · 3.2M out
-             19.4K new · 18.4M cached · 1.3B reused  (99% reused)
-  span       Jul 31 – Aug 31, 2026
-  top tools  Bash 2687 · Edit 1121 · Write 330 · Read 294 · WebSearch 28
+  sessions   7         rounds   198      tasks  25
+  tokens     22.2M in · 114.2K out
+             396 new · 788.4K cached · 21.5M reused  (96% reused)
+  span       Oct 11 – Oct 18, 2026
+  top tools  Bash 159 · Edit 28 · Read 4 · Artifact 3 · AskUserQuestion 3
 
-  up to date, 10 sessions unchanged
-  → ~/.probez/projects/flowz-agentic-sdlc-bd3def99/rounds.jsonl
+  up to date, 7 sessions unchanged
+  → ~/.probez/projects/probez-fe64e716/rounds.jsonl
 ```
 
 Sessions of a project, newest last:
 
 ```console
-$ probez sessions flowz-agentic-sdlc
+$ probez sessions probez
 
-  flowz-agentic-sdlc  ~/Dev/workspace/flowz-agentic-sdlc
+  probez  ~/Dev/workspace/probez
 
   SESSION    SOURCE   ROUNDS  TASKS  TOOLS           IN        PEAK      OUT       COST  WORK       LAST
-  9654bb28   claude        6      2  5           296.7K    56.0K/6%     7.4K      $0.62  Recon 100% 27 days ago
-  c19fb0d0   claude       16      3  21            1.0M    85.6K/9%    13.5K      $1.63  Recon 79%  27 days ago
-  b53b6b6b   claude       98      2  110 ✗9       14.3M  216.8K/22%    66.0K     $12.85  Recon 60%  26 days ago
-  5ac80871   claude       58      5  53            7.7M  173.5K/17%    45.6K      $6.57  Recon 97%  25 days ago
+  b96ebc15   claude       74      5  82 ✗2        11.2M  196.1K/20%    61.6K      $6.50  Recon 62%  22 days ago
+  276c23b3   claude       72      5  79 ✗1         7.8M  144.9K/14%    28.1K      $2.96  Recon 51%  22 days ago
+  0d280418   claude       24      9  16 ✗1         1.7M    77.8K/8%     5.1K      $1.40  Deliv 70%  21 days ago
+  934cea53   claude        5      1  4           207.7K    42.8K/4%     3.3K      $0.35  Recon 100% 21 days ago
+  5c6e8215   claude        3      1  2           140.6K    47.6K/5%     1.4K      $0.33  Recon 100% 20 days ago
+  a7c3b2f4   claude        4      1  3           191.7K    50.3K/5%     2.4K      $0.38  Recon 100% 20 days ago
+  1b8ea982   claude       16      3  14 ✗2         1.0M    77.9K/8%    12.2K      $0.96  Recon 96%  17 days ago
 
-  4 sessions · 178 rounds · $21.67
+  7 sessions · 198 rounds · $12.88
   `probez session <id>` shows one of them, task by task.
 ```
 
 When the agent hands work to a subagent, that run is a session of its own, named for the one that
-handed it over. It is a separate context with its own model and its own bill, so it is counted
-separately rather than folded into the session that delegated it:
+handed it over (`504799b8/a8261ff4`). It is a separate context with its own model and its own bill,
+so it is counted separately rather than folded into the session that delegated it: `sessions` grows
+an `AGENT` column marking each row `main` or `sub`, and `probez session <id>` says underneath a
+session's own tasks what it handed off, and what that cost. A session as its tasks, each with the
+commit the tree was on when it was asked:
 
 ```console
-$ probez sessions delivery-bench --limit 6
+$ probez session probez b96ebc15 --limit 3
 
-  delivery-bench  ~/Dev/benchmarks/delivery-bench
+  probez  ~/Dev/workspace/probez
 
-  SESSION            AGENT SOURCE   ROUNDS  TASKS  TOOLS           IN        PEAK      OUT       COST  WORK       LAST
-  3d345edb/ae4f9f73  sub   claude        9      1  16          244.9K    44.4K/4%     7.9K      $0.55  Recon 77%  29 days ago
-  3d345edb/aa4460b1  sub   claude       12      1  20          388.7K    53.1K/5%    10.8K      $0.74  Recon 100% 29 days ago
-  3d345edb/af20cf33  sub   claude       15      1  26          532.1K    56.0K/6%     5.6K      $0.73  Recon 98%  29 days ago
-  3d345edb           main  claude      298     51  249 ✗3       78.4M  480.9K/48%   301.5K     $52.89  Recon 78%  29 days ago
-  973db092           main  claude      327     20  321 ✗9       70.0M  381.8K/38%   192.3K     $43.34  Recon 63%  29 days ago
-  890b47ba           main  claude       20      4  21            1.1M    67.2K/7%    10.7K      $1.97  Recon 83%  28 days ago
-
-  showing 6 of 13 sessions · 1286 rounds · $200.57, --limit 0 for all
-  `probez session <id>` shows one of them, task by task.
-```
-
-`probez session <id>` says underneath a session's own tasks what it handed off, and what that cost:
-
-```console
-$ probez session flowz-agentic-sdlc 15ac167d --limit 3
-
-  flowz-agentic-sdlc  ~/Dev/workspace/flowz-agentic-sdlc
-
-  session 15ac167d  ·  16 tasks · 150 rounds · 27.6M in · 180.4K out · 3 tool errors · Jul 31, 2026
+  session b96ebc15  ·  5 tasks · 74 rounds · 11.2M in · 61.6K out · 2 tool errors · Oct 11 – Oct 13, 2026
 
   TASK         ROUNDS       IN     OUT     TIME  WORK       FROM     ASKED
-  15ac167d#1       12   517.7K   10.8K     2.6m  Docs 55%   a938f1f  start tracking the proje…
-  15ac167d#2        5   275.1K    5.9K     1.4m  Docs 75%   6e9716d  once i a while i'll post…
-  15ac167d#3        1    58.4K    1.5K    23.8s  —          9e4e660  we are implementing task…
+  b96ebc15#1       13     1.1M   33.5K     5.2m  Recon 56%  df3a1c1  look at the probez app a…
+  b96ebc15#2        4   519.7K    3.9K    44.7s  Recon 50%  df3a1c1  answers - Where should t…
+  b96ebc15#3        3   407.7K     914    20.0s  Plan 50%   22601cf  just pulled and new layo…
 
-  showing 3 of 16 tasks · 150 rounds, --limit 0 for all. `probez task 15ac167d#1` shows one in full
-
-  handed to 2 subagents · 25 rounds · 650.5K in · 26.7K out, none of it counted above
-
-  TASK                 ROUNDS       IN     OUT     TIME  WORK       FROM     ASKED
-  15ac167d/a29da1c6#1       7   135.0K    9.1K     2.1m  Recon 93%  9e4e660  Decompose PRD-001 (…
-  15ac167d/ad108a22#1      18   515.5K   17.7K     4.0m  Plan 65%   a1b59fd  Audit this repo's S…
+  showing 3 of 5 tasks · 74 rounds, --limit 0 for all. `probez task b96ebc15#1` shows one in full
 ```
 
-A session as its tasks, each with the commit the tree was on when it was asked:
+`tasks` is the same list across sessions, and takes `--session` to stay inside one:
 
 ```console
-$ probez tasks flowz-agentic-sdlc --session 15ac167d --limit 8
+$ probez tasks probez --session b96ebc15 --limit 8
 
-  flowz-agentic-sdlc  ~/Dev/workspace/flowz-agentic-sdlc
+  probez  ~/Dev/workspace/probez
 
   TASK         ROUNDS       IN     OUT     TIME  WORK       FROM     ASKED
-  15ac167d#1       12   517.7K   10.8K     2.6m  Docs 55%   a938f1f  start tracking the proje…
-  15ac167d#2        5   275.1K    5.9K     1.4m  Docs 75%   6e9716d  once i a while i'll post…
-  15ac167d#3        1    58.4K    1.5K    23.8s  —          9e4e660  we are implementing task…
-  15ac167d#4        3   186.2K    3.4K    51.7s  Plan 100%  9e4e660  what next? M2?
-  15ac167d#5        3   215.4K    6.9K     1.3m  Docs 50%   9e4e660  do we have this in the d…
-  15ac167d#6        4   307.5K    3.0K    41.9s  Docs 67%   2a0c9e7  this should be in the co…
-  15ac167d#7       20     2.1M   36.2K     7.3m  Docs 46%   be347e3  i see the task, yet no m…
-  15ac167d#8        4   569.1K    6.4K     1.5m  Recon 42%  52900e4  add to the metrics ledge…
+  b96ebc15#1       13     1.1M   33.5K     5.2m  Recon 56%  df3a1c1  look at the probez app a…
+  b96ebc15#2        4   519.7K    3.9K    44.7s  Recon 50%  df3a1c1  answers - Where should t…
+  b96ebc15#3        3   407.7K     914    20.0s  Plan 50%   22601cf  just pulled and new layo…
+  b96ebc15#4       52     8.8M   22.9K     4.3m  Recon 66%  22601cf  i would like to create a…
+  b96ebc15#5        2   391.9K     488     7.0s  Deliv 100% a6a2090  npmjs login then publish…
 
-  showing 8 of 16 tasks, --limit 0 for all. `probez task <id>` shows one in full
+  5 tasks. `probez task <id>` shows one in full
 ```
 
-**`FROM` is where the task began, not what it produced.** Tasks 3, 4 and 5 all start from
-`9e4e660`, so those three asks were made against the same tree; the hash then moves, which is the
-work of the task before it landing. It is read from git's HEAD reflog when the project is collected,
+**`FROM` is where the task began, not what it produced.** Tasks 1 and 2 both start from `df3a1c1`,
+so those two asks were made against the same tree; the hash then moves, which is the work landing
+in between — task 3 opens with "just pulled". It is read from git's HEAD reflog when the project is collected,
 and it is blank for a project that is not a checkout.
 
 A reflog only reaches so far — git expires it at 90 days, and a fresh clone arrives holding a single
@@ -466,22 +447,49 @@ commit covers every moment that repository has existed, and nothing else is cons
 And what the work actually was:
 
 ```console
-$ probez analyze work
+$ probez analyze probez
 
-  work  $TMPDIR/probez-readme-Jdv8al/work
+  probez  ~/Dev/workspace/probez
 
   WORK                  ROUNDS    SHARE   TOKENS      COST  ERRORS      TIME      OUT
-  Reconstruction           1.0    59.1%    21.2%   $0.0016       ·      2.0s       40
-    read                   1.0    59.1%    21.2%   $0.0016       ·      2.0s       40
-  Implementation           1.0    21.9%    32.5%   $0.0006     1.0       0ms       20
-    modify                 1.0    21.9%    32.5%   $0.0006     1.0       0ms       20
-  Testing                  1.0    19.0%    46.3%   $0.0005       ·       0ms       15
-    test                   1.0    19.0%    46.3%   $0.0005       ·       0ms       15
+  Planning                13.2     4.9%     8.1%     $0.59     1.0     13.8s     4.7K
+    read                  10.2     3.9%     6.6%     $0.46     1.0      7.7s     3.4K
+    clarify                3.0     1.1%     1.5%     $0.13       ·      6.2s     1.3K
+  Reconstruction           101    58.2%    57.0%     $6.92     7.0      1.5m    36.4K
+    locate                51.4    25.5%    29.2%     $3.04     4.0     53.9s    19.5K
+    read                  27.6    15.1%    13.5%     $1.79       ·     14.2s     9.5K
+    inspect               14.7    11.8%    10.6%     $1.41     3.0     15.1s     5.1K
+    graph                  7.3     5.7%     3.6%     $0.68       ·      5.5s     2.4K
+  Implementation          11.6     9.4%     7.1%     $1.12       ·      4.1m    34.8K
+    modify                10.6     4.8%     6.5%     $0.57       ·     56.2s    10.7K
+    create                 1.0     4.6%     0.6%     $0.55       ·      3.1m    24.1K
+  Testing                 10.1     3.5%     6.3%     $0.42     1.0      9.8s     4.2K
+    run                    8.6     3.0%     5.3%     $0.35     1.0      7.6s     3.6K
+    test                   1.4     0.5%     1.0%     $0.06       ·      2.1s      669
+  Documentation            5.5     2.5%     4.3%     $0.30       ·     29.5s     4.6K
+    system                 3.7     1.9%     3.1%     $0.22       ·     25.3s     3.8K
+    change                 1.8     0.6%     1.2%     $0.07       ·      4.2s      814
+  Delivery                23.1    14.5%    13.0%     $1.72     1.0     22.1s     7.0K
+    branch                 8.0     3.3%     3.1%     $0.39       ·      3.4s     1.4K
+    publish                6.5     5.6%     3.6%     $0.67     1.0      5.0s     1.6K
+    build                  4.6     4.0%     3.3%     $0.48       ·      8.1s     1.9K
+    commit                 4.0     1.5%     3.0%     $0.18       ·      5.6s     2.1K
+  Environment              2.5     0.7%     1.4%     $0.08     1.0      2.3s      733
+    env                    1.3     0.3%     0.7%     $0.04       ·     904ms      284
+    deps                   1.1     0.3%     0.6%     $0.04     1.0      1.4s      450
+  Unclassified             6.9     6.4%     2.9%     $0.76     1.0      6.7s     2.9K
+    unknown                6.9     6.4%     2.9%     $0.76     1.0      6.7s     2.9K
 
-  3 rounds did something a tool can see, out of 5. Share is of the $0.0028 they cost. Tokens is of the 683 they moved
-  2 rounds of prose only (40.0%) · 66.7% of work has a known target
-  0.0% of the finding was inside 0 trails
+  174 rounds did something a tool can see, out of 198. Share is of the $11.89 they cost. Tokens is of the 20.1M they moved
+  24 rounds of prose only (12.1%) · 4.0% unclassified · 70.9% of work has a known target
+  2.3M tokens sit outside Tokens: prose-only rounds
+  Unclassified is mostly probez, Artifact, Skill. --unclassified lists it
+  40.9% of the finding was inside 7 trails, 2 of which ended in a change
+  The deepest went 4 hops from a probe: `probez trail 1b8ea982#1.0`
 ```
+
+Most of what the agent spent building probez went on finding its way back around probez:
+Reconstruction is 58% of the bill, Implementation under a tenth.
 
 **Share is of money; Tokens is of volume.** `ROUNDS` says how much of the work a category was;
 `SHARE` says how much of the bill; `TOKENS` says how much of the input+output. Cost is worked out
@@ -503,45 +511,51 @@ Bare words are free text, over the prompts, the prose, the commands and the path
 filters, `-` negates, one after another means and, `OR` is the other one, and brackets regroup.
 
 ```console
-$ probez find 'category:reconstruction cost:>0.30 -tool:Read' flowz-mcp
+$ probez find 'category:reconstruction cost:>0.20 -tool:Read' probez
 
-  flowz-mcp  ~/Dev/workspace/flowz-mcp
+  probez  ~/Dev/workspace/probez
 
-  4 rounds · $2.32 · 0.6% of rounds · 2.8% of cost · 3 sessions · 83% reconstruction
+  8 rounds · $3.33 · 4.0% of rounds · 25.9% of cost · 6 sessions · 89% reconstruction
 
   ROUND           WORK                COST     TIME         WHEN  SAYS
-  c21c7448#2.64   Environment        $1.16    842ms  23 days ago  Bash 1
-  c21c7448#1.0    Reconstruction     $0.39     1.5s  24 days ago  implement next task
-  bfd594d9#2.24   Reconstruction     $0.42    866ms  28 days ago  Bash 1
-  0b2cc149#1.0    Reconstruction     $0.36    794ms  29 days ago  did we implemented T001?
+  1b8ea982#1.0    Reconstruction     $0.29     1.4s  17 days ago  Suggest a fix for the finding F36 **No …
+  a7c3b2f4#1.0    Reconstruction     $0.27     1.6s  20 days ago  Suggest a fix for the finding F21 **Ove…
+  5c6e8215#1.0    Reconstruction     $0.28     1.5s  20 days ago  Suggest a fix for the finding F3 **Logs…
+  934cea53#1.0    Reconstruction     $0.23     1.2s  21 days ago  Suggest a fix for the finding F1 **Save…
+  276c23b3#1.0    Reconstruction     $0.24    832ms  22 days ago  install the latest (0.8.0) problez-cli …
+  b96ebc15#4.20   Reconstruction     $0.92     1.6s  22 days ago  i would like to create a major release
+  b96ebc15#3.17   Reconstruction     $0.88     1.2s  24 days ago  just pulled and new layout - how do i r…
+  b96ebc15#1.0    Reconstruction     $0.24     1.6s  24 days ago  look at the probez app and suggest a be…
 
-  4 rounds
+  8 rounds
 ```
 
-**The first line is a share, not a count.** Four rounds is a number; 2.8% of what this project cost
-is a finding. A query does not filter a listing, it re-scopes the profile — the same idea as pprof's
+**The first line is a share, not a count.** Eight rounds is a number; a quarter of what this
+project cost is a finding — and most of those rounds are the first of their session, the agent
+orienting itself before it could do what it was asked. A query does not filter a listing, it re-scopes the profile — the same idea as pprof's
 `-focus`, and the reason the totals, the concentration and the distribution come before any row of
 it.
 
 `--in` says what the matched rounds are then counted as. A session, task or project matches when a
 round inside it does, and the row reports the rounds that matched with the size of the whole thing
-beside them, so a task that spent six of its seventy-one rounds on what was asked for reads as six:
+beside them, so a task that spent eight of its thirty-six rounds on what was asked for reads as
+eight:
 
 ```console
-$ probez find '(tool:Edit OR tool:Write) added:>200 in:tasks sort:cost' flowz-agentic-sdlc --limit 5
+$ probez find '(tool:Edit OR tool:Write) in:tasks sort:cost' probez --limit 5
 
-  flowz-agentic-sdlc  ~/Dev/workspace/flowz-agentic-sdlc
+  probez  ~/Dev/workspace/probez
 
-  29 rounds · $11.87 · 0.7% of rounds · 1.2% of cost · 8 sessions · 86% implementation
+  14 rounds · $1.25 · 7.1% of rounds · 9.7% of cost · 2 sessions · 49% implementation
 
   TASK         ROUNDS    OF       COST  ASKED
-  6b45d8d7#3        6    71      $4.10  <task-notification> <task-id>a5420a731e4ed3f58</task…
-  5366f0e4#2        6   164      $2.36  Base directory for this skill: /private/tmp/claude-5…
-  f77c95fe#1        4   182      $1.32  implement PRD13
-  5366f0e4#22       3    35      $0.73  2 - this is not yet to be enforced - i have free tei…
-  ea20e02d#3        1     9      $0.50  do it
+  b96ebc15#1        1    13      $0.55  look at the probez app and suggest a better, cleaner…
+  276c23b3#3        8    36      $0.38  yes, fix clear --all
+  b96ebc15#4        3    52      $0.19  i would like to create a major release
+  b96ebc15#2        1     4      $0.09  answers - Where should the app open? Overview. Findi…
+  276c23b3#5        1    12      $0.05  release 0.8.1
 
-  showing 5 of 14 tasks, --limit 0 for all
+  5 tasks
 ```
 
 `--all` searches every project in the store rather than one. `sort:` puts the big end of a magnitude
@@ -615,39 +629,32 @@ one word. `error:` filters on it:
 entirely:
 
 ```console
-$ probez tools runnerz --limit 3
+$ probez tools probez --limit 3
 
-  runnerz  ~/Dev/benchmarks/runnerz
+  probez  ~/Dev/workspace/probez
 
   TOOL                 CALLS  ERRORS  NOFAULT    RESULT      TIME
-  Bash                  2602      60       3      3.8M     14.6h
-    cd                  1378      30       ·      1.6M      6.9h
-    echo                1042      27       2      1.6M      5.0h
-    grep                 734      11       2    897.0K      6.5h
-      … 130 more, --limit 0 for all
-  Edit                   133       6       ·     21.8K      5.8m
-  Read                    46       ·       ·    460.2K      2.1m
-  AskUserQuestion         19       ·       ·     10.3K      3.7h
-  ToolSearch              16       ·       ·      1.2K      1.9s
-  Write                   12       ·       ·      2.0K     20.2s
-  ExitPlanMode             9       ·       6     45.9K      1.1h
-  TaskOutput               6       ·       ·      5.4K     47.7m
-  ListAgents               5       ·       ·      3.2K     108ms
-  Agent                    3       ·       ·      3.2K      50ms
-  Monitor                  3       ·       ·       627      91ms
-  TaskStop                 3       ·       ·      1.6K      24ms
-  WebFetch                 3       ·       ·      4.9K     34.7s
-  WebSearch                3       ·       ·     11.0K     35.0s
-  EnterPlanMode            2       ·       ·      1.2K      11ms
-  Skill                    1       ·       ·        27      3.0s
+  Bash                   159       6       ·    325.7K     16.6m
+    grep                  90       1       ·    174.0K      8.9m
+    cd                    76       4       ·    157.9K      3.9m
+    head                  73       3       ·    160.2K      5.5m
+      … 63 more, --limit 0 for all
+  Edit                    28       ·       ·      3.0K      7.1m
+  Read                     4       ·       ·      1.3M     56.4s
+  Artifact                 3       ·       ·     38.4K      3.1s
+  AskUserQuestion          3       ·       ·       839     18.0s
+  Glob                     1       ·       ·        36      2.2s
+  Skill                    1       ·       ·        20      69ms
+  Write                    1       ·       ·       224      71ms
 
-  16 tools · 2866 calls · 66 errors
-  9 more flagged with no fault: a search found nothing, or you said no
-  133 commands under Bash. A call that ran several is counted for each
+  8 tools · 200 calls · 6 errors
+  66 commands under Bash. A call that ran several is counted for each
 ```
 
-`ExitPlanMode` is the clearest case: nine calls, no errors, six plans you turned down. Under one
-flag that read as a tool failing two times in three.
+These sessions happen to hold no no-fault calls, so `NOFAULT` is empty here and the footer says
+nothing about it. Where there are some, the footer counts them on a line of their own, and the
+clearest case is usually `ExitPlanMode`: a plan you turned down is flagged by the harness exactly
+as a failure is, and counted as one it reads as a tool failing every time you said no.
 
 The kind worth chasing is `harness`, because every one of them is a protocol mistake with a fix —
 `probez find "error:harness" --all` is the list. `exit` is the agent's shell reporting on the world
@@ -666,21 +673,21 @@ Reconstruction, and a tally of Reconstruction cannot tell five hops of one searc
 file opens. A **trail** is that search:
 
 ```console
-$ probez trails flowz-agentic-sdlc --deep --limit 8
+$ probez trails probez --deep --limit 8
 
-  flowz-agentic-sdlc  ~/Dev/workspace/flowz-agentic-sdlc
+  probez  ~/Dev/workspace/probez
 
-  TRAIL                   STEPS  DEPTH  WIDE  PATHS  ROOT     OUTCOME        IN    TIME
-  15ac167d#1.0                8      4     5     10  path     edit       123.0K   15.9s
-  15ac167d#9.55              16      6     9     27  listing  edit         1.4M   12.1s
-  15ac167d/a29da1c6#1.0       8      2     7      7  listing  abandoned   48.2K    4.9s
-  15ac167d/a29da1c6#1.0       5      2     4      4  listing  abandoned   20.3K    3.5s
-  15ac167d/ad108a22#1.5       4      2     3      4  doc      abandoned   38.1K    1.4s
-  15ac167d/ad108a22#1.5       6      5     2     10  doc      abandoned  200.5K    8.1s
-  19ae887e#2.1               13      6     5     11  listing  edit         2.9M   20.1s
-  19ae887e#2.6                6      4     3      8  probe    edit         1.8M    9.7s
+  TRAIL           STEPS  DEPTH  WIDE  PATHS  ROOT     OUTCOME        IN    TIME
+  1b8ea982#1.0        5      4     2      9  probe    abandoned  267.5K    4.6s
+  1b8ea982#2.7        3      3     1      8  probe    test       167.2K    4.3s
+  1b8ea982#3.12       3      3     1      4  probe    abandoned  222.2K    2.4s
+  276c23b3#2.5        4      2     3      2  probe    edit       294.1K    1.5s
+  276c23b3#3.19       8      5     3      9  doc      edit       804.7K    3.2s
+  276c23b3#3.23       8      4     4      6  probe    edit       744.3K    3.0s
+  276c23b3#5.60       3      3     1      5  doc      edit       408.8K    2.6s
+  934cea53#1.0        4      3     2      7  path     abandoned  164.9K    2.7s
 
-  showing 8 of 100 trails, --limit 0 for all · 92 proven from result bodies
+  showing 8 of 12 trails, --limit 0 for all · 12 proven from result bodies
   `probez trail <id>` draws one of them, hop by hop.
 ```
 
@@ -690,23 +697,23 @@ started from and `OUTCOME` whether it ended in a change to somewhere it had been
 the round it starts at, and asking for any round it passed through finds it:
 
 ```console
-$ probez trail flowz-agentic-sdlc '15ac167d/a29da1c6#1.0' --deep
+$ probez trail probez '276c23b3#3.23' --deep
 
-  trail 15ac167d/a29da1c6#1.0 → 1.4 · 8 steps · proven
-  depth 2 · breadth 7 · 7 paths
-  from a listing · abandoned · 48.2K in · 1.6K out · 4.9s
+  trail 276c23b3#3.23 → 3.48 · 8 steps · proven
+  depth 4 · breadth 4 · 6 paths · 1 revisited
+  from a probe · edit src/result.ts · 744.3K in · 3.0K out · 3.0s
 
   ROUND   REACHED FOLLOWED                CALL
-  1.0     tree    started here            Glob packages/**/src/**/*.ts
-  1.1     file    listed packages/cont…     Read packages/contracts/src/run.ts
-  1.1     file    listed packages/agen…     Read packages/agents/src/provider.ts
-  1.1     file    listed packages/agen…     Read packages/agents/src/fake-provider.ts
-  1.3     file    listed packages/cont…     Read packages/contracts/src/mission.ts
-  1.3     file    listed packages/cont…     Read packages/contracts/src/agent.ts
-  1.4     file    listed packages/doma…     Read packages/domain/src/router.ts
-  1.4     file    listed packages/cont…     Read packages/contracts/src/common.ts
+  3.23    dir     started here            .flowz/q callers planClear; .flowz/q callers ap…
+  3.24    span    listed test/clear.te…     sed -n '1,90p;205,275p' test/clear.test.ts; s…
+  3.25    span    listed src/cli.ts         sed -n '2085,2165p;2215,2260p' src/cli.ts
+  3.26    span    listed src/store.ts       Read src/store.ts:1225-1239
+  3.28    file    listed src/store.ts       grep -n "^import" src/store.ts | head -20
+  3.29    span    narrow src/store.ts         sed -n '3,15p' src/store.ts
+  3.47    span    narrow src/store.ts         sed -n '536,549p' src/store.ts; .flowz/q de…
+  3.48    dir     listed src/result.ts          sed -n '1,181p' src/result.ts; ls ~/.prob…
 
-  `probez round 1.0` shows any one of these calls in full.
+  `probez round 3.23` shows any one of these calls in full.
 ```
 
 `CALL` is what actually ran, indented by how deep into the walk it sits, and `FOLLOWED` is the
@@ -734,25 +741,25 @@ A **question** is the other reading of the same calls: one thing the agent neede
 call it spent finding out, whether or not any of them got anywhere.
 
 ```console
-$ probez questions flowz-mcp --min-calls 2 --limit 6
+$ probez questions probez --min-calls 2 --limit 6
 
-  flowz-mcp  ~/Dev/workspace/flowz-mcp
+  probez  ~/Dev/workspace/probez
 
   QUESTION        CALLS  AGAIN  FETCH  GUESS  KIND          IN    TIME  ASKED ABOUT
-  51cced08#2.3       11      0     10      0  outline   664.3K    6.5s  claude
-  c21c7448#2.13       9      0      8      0  outline   775.9K    3.6s  contextfacets
-  c21c7448#2.4        8      0      7      0  outline   484.3K    1.7s  claude
-  6ffef9bc#4.17       5      1      2      1  flow      395.1K    3.1s  facets type const confidence …
-  069d8593#1.1        4      0      3      0  touches   179.6K    3.8s  —
-  be254122#2.15       4      0      3      0  touches   230.2K   682ms  —
+  276c23b3#3.20      13      5     10      1  outline     1.2M    4.0s  clear planclear applyclear im…
+  b96ebc15#4.41       8      0      2      4  flow        1.4M    2.1s  source control projects list …
+  1b8ea982#2.7        4      0      1      3  covers    237.7K    4.6s  opencode need node skipped wa…
+  b96ebc15#4.32       4      1      2      0  flow      621.2K    5.0s  opus tables
+  276c23b3#2.6        3      2      2      0  outline   229.2K   513ms  —
+  b96ebc15#1.1        3      0      2      0  outline   191.5K    1.7s  —
 
-  showing 6 of 31 questions, --limit 0 for all
-  152 asked in all · 220 calls · 1.45 per question · 31 took more than one
+  showing 6 of 18 questions, --limit 0 for all
+  67 asked in all · 110 calls · 1.64 per question · 18 took more than one
   AGAIN is the same words asked of the same places over again.
   KIND, in these rows:
     outline   what does this file declare
     flow      where does this value travel across layers
-    touches   every artifact naming a concept, code and prose alike
+    covers    what constrains this — the tests that exercise it
   `probez question <id>` shows every call one of them took.
   `probez explain <id>` asks your own LLM what one of them was, in a sentence.
 ```
@@ -782,32 +789,26 @@ no reading of a grep can recover it.
 A question is named by a round it was asked at, and asking for any round in it finds it:
 
 ```console
-$ probez question flowz-mcp 0b2cc149#1.2
+$ probez question probez 276c23b3#2.6
 
-  question 0b2cc149#1.2 → 1.4 · 3 calls · refs — where is this used
-  asked about enqueuer, status
-  read as  Where does the Enqueuer exist in this codebase — which internal packages
-           reference it, and what do the task docs say about its status?
-           touches, not refs · the same concept word "Enqueuer" is swept across all Go
-           sources under internal/, plus directory listings of indexer/ and githubapp/ and a
-           grep of Status lines in docs/tasks/*.md, gathering code and prose artifacts alike
-           rather than a single symbol's callers · claude
-  1 place · 1 re-asked · 116.1K in · 508 out · 2.2s
+  question 276c23b3#2.6 → 2.11 · 3 calls · outline — what does this file declare
+  asked about nothing by name
+  1 place · 2 re-asked · 2 fetched a body · 229.2K in · 539 out · 513ms
 
   ROUND   REACHED ASKED                     CALL
-  1.2     dir     enqueuer                  ls internal/ && echo "---INDEXER---" && ls in…
-  1.3     dir     enqueuer status           grep -rn "Enqueuer" internal/ --include=*.go …
-  1.4     dir     enqueuer ↺                grep -rn "Enqueuer" internal/ | head -20; ech…
+  2.6     file    —                         probez clear --all --json 2>&1 | head -60; du…
+  2.9     file    — ↺                       probez clear --all --yes 2>&1 | tail -5; echo…
+  2.11    dir     — ↺                       cd ~/.probez && du -sh * | sort -h | tail; du…
 
-  `probez round 1.2` shows any one of these calls in full.
+  `probez round 2.6` shows any one of these calls in full.
 ```
 
-`CALL` is the command itself, because a run of greps for one word is obvious as a column of
+`CALL` is the command itself, because a run of commands at one place is obvious as a column of
 commands and merely plausible as a column of derived labels — the reason there is no separate
 `WHERE`, too: a command names its own paths. The `↺` marks a call that asked what the question had
-already asked. Three calls, one thing wanted,
-and the last of them bought nothing — which is a shape that no trail records, because none of these
-three narrowed anything for the next.
+already asked. Three calls at one place, one thing wanted — what is left in the store — and two of
+them asked it again, which is a shape that no trail records, because none of the three narrowed
+anything for the next.
 
 ### Explain: the same question, read back by your own LLM
 
@@ -824,32 +825,43 @@ Write the command in `~/.probez/reader.json`, or set it under **Settings** in th
 stdin and prints an answer. Then ask about one question:
 
 ```console
-$ probez explain flowz-mcp 0b2cc149#1.2
+$ probez explain probez 276c23b3#3.20
 
-  question 0b2cc149#1.2 → 1.4 · 3 calls · refs — where is this used
-  asked about enqueuer, status
-  read as  Where does the Enqueuer exist in this codebase — which internal packages
-           reference it, and what do the task docs say about its status?
-           touches, not refs · the same concept word "Enqueuer" is swept across all Go
-           sources under internal/, plus directory listings of indexer/ and githubapp/ and a
-           grep of Status lines in docs/tasks/*.md, gathering code and prose artifacts alike
-           rather than a single symbol's callers · claude
-  1 place · 1 re-asked · 116.1K in · 508 out · 2.2s
+  question 276c23b3#3.20 → 3.48 · 13 calls · outline — what does this file declare
+  asked about clear, planclear, applyclear, import
+  read as  How does the `probez clear` command work, from the CLI handler through
+           planClear/applyClear in the store, and what session data on disk does it actually
+           remove?
+           other, not outline · the agent looked up clearCommand/planClear, their callers
+           and tests, then read store, viewdata, insights and result code and measured the
+           size of a real sessions directory, which is a how-does-this-feature-work question
+           rather than a single symbol, reference or coverage lookup · claude
+  8 places · 5 re-asked · 10 fetched a body · 1 guessed at words · 1.2M in · 3.7K out · 4.0s
 
   ROUND   REACHED ASKED                     CALL
-  1.2     dir     enqueuer                  ls internal/ && echo "---INDEXER---" && ls in…
-  1.3     dir     enqueuer status           grep -rn "Enqueuer" internal/ --include=*.go …
-  1.4     dir     enqueuer ↺                grep -rn "Enqueuer" internal/ | head -20; ech…
+  3.20    dir     clear                     .flowz/q def clearCommand; .flowz/q def planC…
+  3.21    span    —                         sed -n '1240,1440p' src/store.ts
+  3.22    span    — ↺                       sed -n '160,246p' src/store.ts; sed -n '1130,…
+  3.23    dir     planclear applyclear c…   .flowz/q callers planClear; .flowz/q callers …
+  3.24    span    —                         sed -n '1,90p;205,275p' test/clear.test.ts; s…
+  3.25    span    —                         sed -n '2085,2165p;2215,2260p' src/cli.ts
+  3.26    span    — ↺                       Read src/store.ts:1225-1239
+  3.28    file    import                    grep -n "^import" src/store.ts | head -20
+  3.29    span    — ↺                       sed -n '3,15p' src/store.ts
+  3.42    span    —                         sed -n '895,1073p' src/insights.ts
+  3.43    span    — ↺                       sed -n '140,161p;700,748p' src/insights.ts
+  3.47    span    — ↺                       sed -n '536,549p' src/store.ts; .flowz/q def …
+  3.48    dir     —                         sed -n '1,181p' src/result.ts; ls ~/.probez/p…
 
-  `probez round 1.2` shows any one of these calls in full.
+  `probez round 3.20` shows any one of these calls in full.
 ```
 
-The reading sits *beside* the measurement and never replaces it: the header still says `refs`,
-because that is what the rule reads off these three calls, and the model's `touches` is printed as a
-disagreement rather than as a correction. Nothing that comes back enters a share, a tally or a
+The reading sits *beside* the measurement and never replaces it: the header still says `outline`,
+because that is what the rule reads off these thirteen calls, and the model's `other` is printed as
+a disagreement rather than as a correction. Nothing that comes back enters a share, a tally or a
 filter — every number probez prints stays derivable from the rounds alone. The answer is kept beside
-that project's rounds, so `probez question 0b2cc149#1.2` shows it too and asking again runs nothing;
-`--again` is what spends.
+that project's rounds, so `probez question 276c23b3#3.20` shows it too and asking again runs
+nothing; `--again` is what spends.
 
 In the view it is a button on any question, and the sentence then fills the *asked about* column so
 a table of them can be read at a glance. Beside it is **copy prompt**, which puts exactly what the
@@ -877,22 +889,23 @@ model sends them off the machine; a local one does not. That choice is the comma
 Any single round opens in full, down to what each tool was given:
 
 ```console
-$ probez round flowz-mcp 0bfa7fe3#1.36
+$ probez round probez 276c23b3#5.65
 
-  round 0bfa7fe3#1.36 · main · opus-5
-  124.0K in · 121 out · 825ms · 0 thinking chars  (12% of context)
-  2 new · 10.3K cached · 113.8K reused
-  generated in 3.4s
-  session 0bfa7fe3-f9c1-448f-bbac-a4c58b85e5bf · 2026-08-11T18:08:24.141Z
+  round 276c23b3#5.65 · main · opus-5-5
+  140.9K in · 388 out · 1.3s · 0 thinking chars  (14% of context)
+  2 new · 662 cached · 140.2K reused
+  generated in 4.7s
+  session 276c23b3-87b8-49df-a676-77675f581f08 · 2026-10-13T16:27:25.605Z · from 2f04b55
 
   assistant
-    Build and vet are clean. Running the tests:
+    Step 4, verify: tests, no runtime dependencies, and the README examples.
 
   tools (1)
-     1    Bash             9.4s  848 chars
-       testing/test
-       command: go test ./... 2>&1 | tail -40
-       description: Run the full test suite
+     1    Bash            21.7s  115 chars
+       testing/test × config · reconstruction/locate × config · reconstruction/locate × co…
+       command: npm test 2>&1 | grep -E '^# (tests|pass|fail)'; echo "deps:"; npm ls --omit=dev 2>&…
+       description: Run tests, check runtime deps, look for a README check
+       timeout: 600000
 ```
 
 A session that filled its window carries the one discontinuity a session file does not announce by
@@ -911,19 +924,18 @@ the rounds — on the machine this was written on, 830 MB of 977 — so trimming
 gives the disk back.
 
 ```console
-$ probez clear --before 14d
+$ probez clear --before 21d
 
-  would remove everything last active before 2026-08-13:
+  would remove everything last active before 2026-10-14:
 
-  flowz-agentic-sdlc       all of it   3744 rounds     55 MB
-  flowz-mcp               5 sessions    442 rounds      6 MB
+  probez              2 sessions    146 rounds      5 MB
 
-  2 projects touched · 1 removed entirely · 29 sessions · 4186 rounds · 61 MB freed
+  1 project touched · 0 removed entirely · 2 sessions · 146 rounds · 5 MB freed
 
   The agent's own session files are not touched, so `probez collect` brings back
   whatever the agent still has. An imported project does not come back.
 
-  Remove 4186 rounds from 2 projects? There is no undo. [y/N]
+  Remove 146 rounds from 1 project? There is no undo. [y/N]
 ```
 
 **A session is the unit.** One whose last round is older than the window goes entirely, with the
@@ -950,22 +962,22 @@ A project can be written to a file and read back on another machine, so a trace 
 report or a review the way a log does.
 
 ```console
-$ probez export flowz-mcp --bundle --out flowz-mcp.json
+$ probez export probez --bundle --out probez.json
 
-  exported  flowz-mcp  →  ~/probez-demo/flowz-mcp.json
-  1448 KB · they read it with `probez import flowz-mcp.json`
+  exported  probez  →  ~/probez-demo/probez.json
+  616 KB · they read it with `probez import probez.json`
 ```
 
 ```console
-$ probez import flowz-mcp.json
+$ probez import probez.json
 
-  imported  flowz-mcp
+  imported  probez
 
-  sessions   8         rounds   652      tasks  24
+  sessions   7         rounds   198      tasks  25
 
   this is somebody else's work, kept apart from anything collected here
-  → ~/.probez/projects/flowz-mcp-34f11966/rounds.jsonl
-  probez view flowz-mcp-34f11966
+  → ~/.probez/projects/probez-16544548/rounds.jsonl
+  probez view probez-16544548
 ```
 
 `--bundle` writes one `.json` carrying the manifest and the analysis around the rounds; without it
@@ -984,10 +996,10 @@ thing to export. It redacts the file and nothing else — the view keeps showing
 is.
 
 ```console
-$ probez export flowz-mcp --bundle --darken --out flowz-mcp-darkened.json
+$ probez export probez --bundle --darken --out probez-darkened.json
 
-  exported  darkened  flowz-mcp  →  ~/probez-demo/flowz-mcp-darkened.json
-  1202 KB · they read it with `probez import flowz-mcp-darkened.json`
+  exported  darkened  probez  →  ~/probez-demo/probez-darkened.json
+  411 KB · they read it with `probez import probez-darkened.json`
 ```
 
 It cannot be undone: the tokens are one-way and salted per export, so two exports of the same
@@ -1011,33 +1023,36 @@ One JSON object per LLM round, appended to `~/.probez/projects/<project>/rounds.
 
 ```json
 {
-  "session": "0bfa7fe3-f9c1-448f-bbac-a4c58b85e5bf",
-  "round": 87, "task": 3, "commit": null, "agent": "main", "source": "claude-code",
-  "id": "msg_011CdwSqg3tdZwYQ7vw69XdB",
-  "ts": "2026-08-11T18:37:28.976Z", "ms": 12571, "gen_ms": 16407, "wait_ms": null,
+  "session": "276c23b3-87b8-49df-a676-77675f581f08",
+  "round": 25, "task": 3, "commit": "a6a209031990c6fa848742ff393dd6ca12f15db3",
+  "agent": "main", "source": "claude-code",
+  "id": "msg_011CfzVquKfSU9jKzuCP2Rha",
+  "ts": "2026-10-13T15:47:40.867Z", "ms": 626, "gen_ms": 10097, "wait_ms": null,
   "first_input": "tool_result",
-  "model": "claude-opus-5",
-  "in_tokens": 208130, "in_uncached": 1, "in_cache_read": 207020,
-  "in_cache_write": 1109, "in_cache_write_5m": 0, "in_cache_write_1h": 1109,
-  "out_tokens": 1307,
+  "model": "claude-opus-5-5",
+  "in_tokens": 100136, "in_uncached": 2, "in_cache_read": 95946,
+  "in_cache_write": 4188, "in_cache_write_5m": 0, "in_cache_write_1h": 4188,
+  "out_tokens": 833, "compaction": null,
   "mcp_server": null, "mcp_tool": null, "skill": null,
   "user_text": "",
-  "text": "Now the composer becomes a merger rather than the sole producer:",
+  "text": "Both entry points, the CLI and the view's \"clear the whole store\", go through `planClear(dataDir, { before: null })`, so fixing it there covers both. Next, the CLI's plan printer:",
   "thinking_chars": 0,
   "tools": [
-    {"name": "Edit", "id": "toolu_01JSLS17DXQPPbbA1Qj1W5vS",
-     "input": {"file_path": "internal/compose/composer.go", "old_string": "func hasUnresolved…"},
-     "input_chars": 3045, "result_chars": 175,
-     "is_error": false, "stderr_chars": null, "interrupted": null,
-     "patch": {"files": 1, "added": 76, "removed": 0},
-     "emitted_at": "2026-08-11T18:37:41.547Z", "result_at": "2026-08-11T18:37:41.647Z", "ms": 100}
+    {"name": "Bash", "id": "toolu_01E2hqVVnhNhTawqvEzh8PG4",
+     "input": {"command": "sed -n '2085,2165p;2215,2260p' src/cli.ts",
+               "description": "Read printPlan and runClear output"},
+     "input_chars": 106, "result_chars": 4609,
+     "is_error": false, "error_kind": null, "stderr_chars": 0, "interrupted": false,
+     "patch": null,
+     "emitted_at": "2026-10-13T15:47:41.493Z", "result_at": "2026-10-13T15:47:41.584Z", "ms": 91}
   ],
   "events": [
-    {"type": "tool_result", "ts": "2026-08-11T18:37:25.140Z", "chars": 315,
-     "tool_call_id": "toolu_01RvZYdDLoxC9ybqoKZ4RSjD"},
-    {"type": "text", "ts": "2026-08-11T18:37:28.976Z", "chars": 64},
-    {"type": "tool_call", "ts": "2026-08-11T18:37:41.547Z",
-     "tool_call_id": "toolu_01JSLS17DXQPPbbA1Qj1W5vS"}
+    {"type": "tool_result", "ts": "2026-10-13T15:47:31.396Z", "chars": 9905,
+     "tool_call_id": "toolu_01R786K8WBEzbCkKkNt7tB5c"},
+    {"type": "reasoning", "ts": "2026-10-13T15:47:40.867Z", "chars": 0},
+    {"type": "text", "ts": "2026-10-13T15:47:40.870Z", "chars": 179},
+    {"type": "tool_call", "ts": "2026-10-13T15:47:41.493Z",
+     "tool_call_id": "toolu_01E2hqVVnhNhTawqvEzh8PG4"}
   ]
 }
 ```
@@ -1051,9 +1066,9 @@ Five of those repay a second look:
 - **`is_error` is the harness's flag**, meaning the call was accepted — a `Bash` call whose test
   suite fails still comes back `false`. `stderr_chars` and `interrupted` are what actually happened.
 - **`commit` is the task's starting point, at full length**, and it is the same on every round of
-  the task. It is `null` here because the project this round came from is not a git checkout, which
-  is also what a task older than the repository's first commit, and a repository neither the reflog
-  nor the commit history can be read from, both look like.
+  the task. It is `null` for a project that is not a git checkout, which is also what a task older
+  than the repository's first commit, and a repository neither the reflog nor the commit history
+  can be read from, both look like.
 - **`darkened` is absent here, and is `true` on every round of a project that arrived darkened** —
   see [Sharing a project](#sharing-a-project). It rides on the round rather than beside it because
   a `.jsonl` export has no manifest to carry it, so the mark survives a file someone cut down by
